@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VerseApp — Your Personal Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07070F; --surf:#0E0E1C; --card:#141428; --card2:#1A1A30;
+  --border:rgba(255,255,255,0.06); --bord2:rgba(255,255,255,0.11);
+
+  --t1:#EEEEFF; --t2:#8888AA; --t3:#44445A;
+
+  --ty:#FFD166; --ty-d:rgba(255,209,102,0.12); --ty-g:rgba(255,209,102,0.22);
+  --pl:#06D6A0; --pl-d:rgba(6,214,160,0.12); --pl-g:rgba(6,214,160,0.22);
+  --id:#C77DFF; --id-d:rgba(199,125,255,0.12); --id-g:rgba(199,125,255,0.22);
+  --wi:#FF6B9D; --wi-d:rgba(255,107,157,0.12); --wi-g:rgba(255,107,157,0.22);
+  --ho:#FF9F45; --ho-d:rgba(255,159,69,0.12);
+  --danger:#FF4D6A; --danger-d:rgba(255,77,106,0.12);
+
+  --nav-h:68px; --r:18px; --rs:12px; --rx:8px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden}
+input[type="file"]{display:none!important}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bord2);border-radius:3px}
+
+/* ── SETUP ── */
+#setup{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;
+  background:radial-gradient(ellipse at 40% 0%,rgba(199,125,255,0.10) 0%,transparent 55%),
+             radial-gradient(ellipse at 80% 90%,rgba(255,107,157,0.08) 0%,transparent 50%),var(--bg)}
+.setup-orb{width:110px;height:110px;border-radius:30px;
+  background:linear-gradient(135deg,var(--id),var(--wi));
+  display:flex;align-items:center;justify-content:center;font-size:52px;margin-bottom:28px;
+  box-shadow:0 0 80px rgba(199,125,255,0.3),0 24px 48px rgba(0,0,0,0.5);
+  position:relative}
+.setup-orb::after{content:'';position:absolute;inset:-8px;border-radius:38px;
+  border:1.5px solid rgba(199,125,255,0.2)}
+.setup-h{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;line-height:1.05;
+  background:linear-gradient(135deg,var(--t1) 40%,var(--t2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+.setup-sub{font-size:14px;color:var(--t2);line-height:1.7;max-width:280px;margin:0 auto 36px}
+.setup-btns{display:flex;flex-direction:column;gap:11px;width:100%;max-width:290px}
+.btn{border:none;border-radius:var(--rs);padding:15px 22px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:8px;transition:all .22s;letter-spacing:.02em}
+.btn-grad{background:linear-gradient(135deg,var(--id),var(--wi));color:#fff;
+  box-shadow:0 8px 28px rgba(199,125,255,0.35)}
+.btn-grad:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(199,125,255,0.45)}
+.btn-out{background:var(--surf);color:var(--t1);border:1px solid var(--bord2)}
+.btn-out:hover{background:var(--card);border-color:var(--id)}
+.setup-hint{margin-top:24px;font-size:11px;color:var(--t3);line-height:1.7;max-width:250px}
+.no-api{background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);
+  border-radius:var(--rx);padding:11px 14px;font-size:12px;color:#C8960A;
+  line-height:1.55;margin-top:18px;display:none}
+
+/* ── MAIN APP ── */
+#app{max-width:480px;margin:0 auto;min-height:100vh;display:none}
+
+/* ── TABS ── */
+.tab{display:none;flex-direction:column;min-height:100vh;
+  padding-bottom:calc(var(--nav-h)+8px);animation:fadeUp .28s ease}
+.tab.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BOTTOM NAV ── */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;height:var(--nav-h);
+  background:rgba(14,14,28,0.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;z-index:200;padding:0 4px 6px}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:6px 2px;cursor:pointer;border:none;background:none;
+  border-radius:12px;transition:all .18s;min-width:0}
+.ni-icon{font-size:22px;transition:transform .2s}
+.ni-lbl{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--t3);transition:color .2s;line-height:1}
+.ni:hover{background:rgba(255,255,255,0.04)}
+.ni.act .ni-icon{transform:scale(1.18)}
+.ni[data-t="home"].act .ni-lbl{color:var(--ho)}
+.ni[data-t="thanks"].act .ni-lbl{color:var(--ty)}
+.ni[data-t="plans"].act .ni-lbl{color:var(--pl)}
+.ni[data-t="ideas"].act .ni-lbl{color:var(--id)}
+.ni[data-t="wishes"].act .ni-lbl{color:var(--wi)}
+
+/* ── SECTION HEADER ── */
+.sh{padding:54px 20px 22px;position:relative;overflow:hidden}
+.sh-glow{position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;opacity:.07;pointer-events:none}
+.sh-glow.ty{background:var(--ty)}
+.sh-glow.pl{background:var(--pl)}
+.sh-glow.id{background:var(--id)}
+.sh-glow.wi{background:var(--wi)}
+.sh-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sh-pill{display:flex;align-items:center;gap:7px;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:50px;padding:5px 12px 5px 8px}
+.sh-pip{width:8px;height:8px;border-radius:50%}
+.sh-pip.ty{background:var(--ty)}
+.sh-pip.pl{background:var(--pl)}
+.sh-pip.id{background:var(--id)}
+.sh-pip.wi{background:var(--wi)}
+.sh-sect{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--t2)}
+.add-fab{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:21px;
+  transition:all .22s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
+.add-fab.ty{background:var(--ty-d);color:var(--ty)}
+.add-fab.pl{background:var(--pl-d);color:var(--pl)}
+.add-fab.id{background:var(--id-d);color:var(--id)}
+.add-fab.wi{background:var(--wi-d);color:var(--wi)}
+.add-fab:hover{transform:scale(1.12) rotate(90deg)}
+.sh-h{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--t1);line-height:1.1}
+.sh-sub{font-size:12px;color:var(--t2);margin-top:5px;line-height:1.5}
+.sh-count{display:inline-flex;align-items:center;gap:5px;
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:50px;padding:5px 12px;font-size:11px;color:var(--t2);font-weight:500;margin-top:10px}
+
+/* ── CARDS ── */
+.cards{padding:0 14px;flex:1}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:15px;margin-bottom:11px;cursor:pointer;transition:all .2s;
+  position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.card.ty::before{background:var(--ty)}
+.card.pl::before{background:var(--pl)}
+.card.id::before{background:var(--id)}
+.card.wi::before{background:var(--wi)}
+.card:hover{background:var(--card2);border-color:var(--bord2);transform:translateY(-2px)}
+.card:active{transform:scale(.98)}
+.card-row{display:flex;gap:11px;align-items:flex-start}
+.card-thumb{width:58px;height:58px;border-radius:10px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)}
+.card-no-img{width:58px;height:58px;border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  border:1px dashed var(--bord2)}
+.card-no-img.ty{background:var(--ty-d)}
+.card-no-img.pl{background:var(--pl-d)}
+.card-no-img.id{background:var(--id-d)}
+.card-no-img.wi{background:var(--wi-d)}
+.card-info{flex:1;min-width:0}
+.card-name{font-weight:600;font-size:15px;color:var(--t1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.card-desc{font-size:12px;color:var(--t2);line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-foot{display:flex;align-items:center;justify-content:space-between;
+  margin-top:11px;padding-top:9px;border-top:1px solid var(--border)}
+.card-dt{font-size:10px;color:var(--t3)}
+.ctag{padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase}
+.ctag.ty{background:var(--ty-d);color:var(--ty)}
+.ctag.pl{background:var(--pl-d);color:var(--pl)}
+.ctag.id{background:var(--id-d);color:var(--id)}
+.ctag.wi{background:var(--wi-d);color:var(--wi)}
+/* plan specific */
+.plan-dt-badge{display:inline-flex;align-items:center;gap:5px;
+  background:var(--pl-d);color:var(--pl);padding:4px 10px;border-radius:50px;
+  font-size:11px;font-weight:700;margin-bottom:8px}
+.plan-preview{display:flex;flex-direction:column;gap:3px}
+.plan-prev-row{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.plan-prev-row::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--pl);flex-shrink:0}
+.plan-prev-row.done{color:var(--t3);text-decoration:line-through}
+/* wish countdown */
+.wcnt{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:50px;font-size:10px;font-weight:700}
+.wcnt.soon{background:rgba(255,77,106,0.15);color:var(--danger)}
+.wcnt.near{background:var(--wi-d);color:var(--wi)}
+.wcnt.far{background:var(--surf);color:var(--t3)}
+.per-badge{background:var(--wi-d);color:var(--wi);padding:2px 8px;border-radius:50px;
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── EMPTY STATE ── */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:64px 20px;text-align:center}
+.empty-icon{width:82px;height:82px;border-radius:24px;display:flex;align-items:center;justify-content:center;
+  font-size:38px;margin-bottom:20px;border:1px solid var(--border)}
+.empty-icon.ty{background:var(--ty-d)}
+.empty-icon.pl{background:var(--pl-d)}
+.empty-icon.id{background:var(--id-d)}
+.empty-icon.wi{background:var(--wi-d)}
+.empty-h{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t1);margin-bottom:7px}
+.empty-s{font-size:13px;color:var(--t2);line-height:1.6;max-width:230px}
+
+/* ── HOME / DASHBOARD ── */
+.home-hdr{padding:54px 20px 20px;
+  background:radial-gradient(ellipse at 70% 0%,rgba(199,125,255,0.09) 0%,transparent 55%)}
+.home-dt{font-size:11px;color:var(--t2);letter-spacing:.09em;text-transform:uppercase;margin-bottom:8px}
+.home-h{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--t1);line-height:1.1}
+.home-h em{font-style:normal;background:linear-gradient(135deg,var(--id),var(--wi));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.chg-btn{position:absolute;top:54px;right:20px;background:var(--surf);
+  border:1px solid var(--bord2);color:var(--t2);padding:6px 12px;border-radius:50px;
+  font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:all .2s;text-transform:uppercase}
+.chg-btn:hover{border-color:var(--id);color:var(--id)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px 18px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:15px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:-14px;right:-14px;width:60px;height:60px;border-radius:50%;opacity:.18}
+.stat-card.ty-c::after{background:var(--ty)}
+.stat-card.pl-c::after{background:var(--pl)}
+.stat-card.id-c::after{background:var(--id)}
+.stat-card.wi-c::after{background:var(--wi)}
+.stat-card.ho-c::after{background:var(--ho)}
+.stat-card.rd-c::after{background:var(--danger)}
+.stat-ico{font-size:20px;margin-bottom:7px}
+.stat-n{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--t1);line-height:1}
+.stat-l{font-size:11px;color:var(--t2);margin-top:4px;font-weight:500}
+.top-thanks{background:var(--ty-d);border:1px solid rgba(255,209,102,0.18);border-radius:var(--rs);
+  padding:13px 15px;margin:0 14px 14px;display:flex;align-items:center;gap:12px}
+.tt-ico{font-size:26px}
+.tt-label{font-size:11px;color:var(--t2);margin-bottom:2px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.tt-name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--ty)}
+.feed-wrap{padding:0 14px 0}
+.feed-h{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--t1);margin-bottom:13px;
+  display:flex;align-items:center;gap:7px}
+.feed-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);
+  padding:14px 15px;margin-bottom:10px;position:relative;overflow:hidden}
+.feed-label{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.feed-label.ty{color:var(--ty)}
+.feed-label.pl{color:var(--pl)}
+.feed-label.wi{color:var(--wi)}
+.feed-label.id{color:var(--id)}
+.feed-text{font-size:14px;color:var(--t1);line-height:1.6}
+.feed-meta{font-size:11px;color:var(--t2);margin-top:7px}
+.feed-card.pl-f{border-color:rgba(6,214,160,0.18)}
+.feed-card.wi-f{border-color:rgba(255,107,157,0.22)}
+.feed-card.ty-f{border-color:rgba(255,209,102,0.18)}
+.feed-card.id-f{border-color:rgba(199,125,255,0.18)}
+.divlbl{font-size:10px;color:var(--t3);font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:0 14px 12px;display:flex;align-items:center;gap:9px}
+.divlbl::before,.divlbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── MODAL ── */
+#mo-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:none;align-items:flex-end;justify-content:center}
+#mo-ov.act{display:flex}
+#mo-sheet{background:var(--surf);border-radius:26px 26px 0 0;width:100%;max-width:480px;
+  max-height:94vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mo-handle{width:38px;height:4px;border-radius:4px;background:var(--bord2);margin:14px auto 0}
+.mo-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px}
+.mo-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t1)}
+.mo-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--card);
+  color:var(--t2);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.mo-close:hover{background:var(--danger-d);color:var(--danger)}
+.mo-body{padding:6px 20px 0}
+
+/* Form */
+.fg{margin-bottom:16px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.fi,.fta,.fsel{width:100%;background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--rx);padding:12px 13px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:var(--t1);
+  outline:none;transition:border-color .2s;-webkit-appearance:none}
+.fi::placeholder,.fta::placeholder{color:var(--t3)}
+.fsel{color:var(--t2)}
+.fsel option{background:var(--surf)}
+.fta{resize:none;line-height:1.65;min-height:88px}
+.fi:focus,.fta:focus,.fsel:focus{border-color:var(--id)}
+.fi.ty:focus,.fta.ty:focus{border-color:var(--ty)}
+.fi.pl:focus,.fta.pl:focus,.fsel.pl:focus{border-color:var(--pl)}
+.fi.wi:focus,.fta.wi:focus,.fsel.wi:focus{border-color:var(--wi)}
+
+/* Image upload */
+.img-zone{border:2px dashed var(--bord2);border-radius:var(--rx);
+  padding:22px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card)}
+.img-zone:hover{background:var(--id-d);border-color:var(--id)}
+.img-zone.ty:hover{background:var(--ty-d);border-color:var(--ty)}
+.img-zone-ico{font-size:28px;margin-bottom:6px}
+.img-zone-txt{font-size:12px;color:var(--t2)}
+.img-prev-wrap{position:relative;margin-top:10px}
+.img-prev{width:100%;max-height:200px;object-fit:cover;border-radius:var(--rx);border:1px solid var(--border);display:block}
+.img-rm{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);color:#fff;
+  border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+
+/* Toggle */
+.tog-row{display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border:1.5px solid var(--border);border-radius:var(--rx);padding:12px 13px}
+.tog-lbl{font-size:14px;color:var(--t1)}
+.tog{width:44px;height:24px;border-radius:12px;background:var(--bord2);border:none;
+  cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;
+  border-radius:50%;background:#fff;transition:transform .2s}
+.tog.on{background:var(--wi)}
+.tog.on::after{transform:translateX(20px)}
+
+/* Plan items */
+.plan-list{display:flex;flex-direction:column;gap:7px;margin-bottom:9px}
+.plan-row{display:flex;gap:7px;align-items:center}
+.plan-row input{flex:1;background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--rx);padding:10px 12px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;color:var(--t1);outline:none;transition:border-color .2s}
+.plan-row input:focus{border-color:var(--pl)}
+.plan-row input::placeholder{color:var(--t3)}
+.rm-row{width:30px;height:30px;border-radius:50%;border:none;background:var(--danger-d);
+  color:var(--danger);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.add-row-btn{background:var(--pl-d);color:var(--pl);border:1px dashed var(--pl);
+  border-radius:var(--rx);padding:10px;width:100%;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.add-row-btn:hover{background:rgba(6,214,160,0.22)}
+
+/* Chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 13px;border-radius:50px;font-size:12px;font-weight:600;
+  border:1.5px solid var(--border);background:var(--card);color:var(--t2);
+  cursor:pointer;transition:all .2s;letter-spacing:.02em}
+.chip.sel{border-color:var(--id);background:var(--id-d);color:var(--id)}
+.chip.sel.ty-c{border-color:var(--ty);background:var(--ty-d);color:var(--ty)}
+
+/* Submit */
+.sub-btn{width:100%;border:none;border-radius:var(--rs);padding:15px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:8px;transition:all .2s;letter-spacing:.02em}
+.sub-btn.ty{background:var(--ty);color:#1A1000}
+.sub-btn.pl{background:var(--pl);color:#001A12}
+.sub-btn.id{background:var(--id);color:#fff}
+.sub-btn.wi{background:var(--wi);color:#fff}
+.sub-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+
+/* View modal content */
+.view-img{width:100%;max-height:230px;object-fit:cover;border-radius:var(--rs);
+  margin-bottom:16px;border:1px solid var(--border);display:block}
+.view-label{font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.view-text{font-size:14px;color:var(--t1);line-height:1.65;margin-bottom:16px}
+/* Plan check rows */
+.plan-chk-row{display:flex;align-items:center;gap:11px;padding:11px 13px;
+  background:var(--card);border-radius:var(--rx);margin-bottom:6px;
+  border:1px solid var(--border);cursor:pointer;transition:all .18s}
+.plan-chk-row:hover{border-color:var(--pl)}
+.chk-box{width:22px;height:22px;border-radius:50%;border:2px solid var(--pl);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s}
+.chk-box.on{background:var(--pl);border-color:var(--pl)}
+.chk-box.on::after{content:'✓';font-size:11px;color:#001A12;font-weight:800}
+.chk-txt{font-size:14px;color:var(--t1);transition:all .18s}
+.chk-txt.done{text-decoration:line-through;color:var(--t3)}
+/* Modal action row */
+.mo-actions{display:flex;gap:9px;margin-top:18px}
+.act-edit{flex:1;background:var(--card);border:1px solid var(--bord2);border-radius:var(--rx);
+  padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;
+  color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .18s}
+.act-edit:hover{border-color:var(--id);color:var(--id)}
+.act-del{flex:1;background:var(--danger-d);border:1px solid rgba(255,77,106,0.2);border-radius:var(--rx);
+  padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;
+  color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .18s}
+.act-del:hover{background:rgba(255,77,106,0.2)}
+.view-section-divider{height:1px;background:var(--border);margin:14px 0}
+
+/* Toast */
+#toast{position:fixed;bottom:calc(var(--nav-h)+18px);left:50%;
+  transform:translateX(-50%) translateY(14px);
+  background:var(--card);border:1px solid var(--bord2);color:var(--t1);
+  padding:11px 22px;border-radius:50px;font-size:13px;font-weight:500;
+  z-index:600;opacity:0;transition:all .28s;white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,0.45);pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP ══ -->
+<div id="setup">
+  <div class="setup-orb">🌌</div>
+  <h1 class="setup-h">VerseApp</h1>
+  <p class="setup-sub">Your personal universe — gratitude, plans, ideas, and wishes, all in one place.</p>
+  <div class="setup-btns">
+    <button class="btn btn-grad" onclick="openFile()">📂 Open Existing Journal</button>
+    <button class="btn btn-out" onclick="newFile()">✨ Start Fresh Journal</button>
+  </div>
+  <p class="setup-hint">Saves as <strong>verse_data.json</strong>. Place in the same folder as this HTML for easy access.</p>
+  <div class="no-api" id="no-api">⚠️ Your browser doesn't support direct file access. Use Chrome or Edge for full file persistence. Using local storage as fallback.</div>
+</div>
+
+<!-- ══ MAIN APP ══ -->
+<div id="app">
+
+  <!-- HOME / DASHBOARD -->
+  <div class="tab active" id="tab-home">
+    <div class="home-hdr" style="position:relative">
+      <div class="home-dt" id="hdr-date"></div>
+      <div class="home-h">Your <em>Universe</em>,<br>today.</div>
+      <button class="chg-btn" onclick="switchFile()">⇄ File</button>
+    </div>
+    <!-- Stats 2x3 grid -->
+    <div class="stats-grid" id="dash-stats"></div>
+    <div id="dash-top-thanks"></div>
+    <!-- Feed -->
+    <div class="feed-wrap">
+      <div class="feed-h"><span>📡</span> Live Feed</div>
+      <div id="dash-feed"></div>
+    </div>
+  </div>
+
+  <!-- THANKVERSE -->
+  <div class="tab" id="tab-thanks">
+    <div class="sh">
+      <div class="sh-glow ty"></div>
+      <div class="sh-top">
+        <div class="sh-pill"><div class="sh-pip ty"></div><span class="sh-sect">Thankverse</span></div>
+        <button class="add-fab ty" onclick="openAddModal('thanks')">+</button>
+      </div>
+      <div class="sh-h">Gratitude<br>Log</div>
+      <div class="sh-sub">Whom & what are you grateful for today?</div>
+      <div class="sh-count" id="ty-count">0 entries</div>
+    </div>
+    <div class="cards" id="ty-list"></div>
+  </div>
+
+  <!-- PLANVERSE -->
+  <div class="tab" id="tab-plans">
+    <div class="sh">
+      <div class="sh-glow pl"></div>
+      <div class="sh-top">
+        <div class="sh-pill"><div class="sh-pip pl"></div><span class="sh-sect">Planverse</span></div>
+        <button class="add-fab pl" onclick="openAddModal('plans')">+</button>
+      </div>
+      <div class="sh-h">My Plans</div>
+      <div class="sh-sub">What are you going to crush on a specific day?</div>
+      <div class="sh-count" id="pl-count">0 plans</div>
+    </div>
+    <div class="cards" id="pl-list"></div>
+  </div>
+
+  <!-- IDEAVERSE -->
+  <div class="tab" id="tab-ideas">
+    <div class="sh">
+      <div class="sh-glow id"></div>
+      <div class="sh-top">
+        <div class="sh-pill"><div class="sh-pip id"></div><span class="sh-sect">Ideaverse</span></div>
+        <button class="add-fab id" onclick="openAddModal('ideas')">+</button>
+      </div>
+      <div class="sh-h">Idea<br>Vault</div>
+      <div class="sh-sub">Capture every spark — projects, businesses, dreams.</div>
+      <div class="sh-count" id="id-count">0 ideas</div>
+    </div>
+    <div class="cards" id="id-list"></div>
+  </div>
+
+  <!-- WISHVERSE -->
+  <div class="tab" id="tab-wishes">
+    <div class="sh">
+      <div class="sh-glow wi"></div>
+      <div class="sh-top">
+        <div class="sh-pill"><div class="sh-pip wi"></div><span class="sh-sect">Wishverse</span></div>
+        <button class="add-fab wi" onclick="openAddModal('wishes')">+</button>
+      </div>
+      <div class="sh-h">Wish<br>Keeper</div>
+      <div class="sh-sub">Never miss an occasion. One-time or yearly.</div>
+      <div class="sh-count" id="wi-count">0 wishes</div>
+    </div>
+    <div class="cards" id="wi-list"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="nav">
+    <button class="ni act" data-t="home" onclick="switchTab('home')">
+      <span class="ni-icon">🏠</span><span class="ni-lbl">Home</span>
+    </button>
+    <button class="ni" data-t="thanks" onclick="switchTab('thanks')">
+      <span class="ni-icon">🙏</span><span class="ni-lbl">Thanks</span>
+    </button>
+    <button class="ni" data-t="plans" onclick="switchTab('plans')">
+      <span class="ni-icon">📋</span><span class="ni-lbl">Plans</span>
+    </button>
+    <button class="ni" data-t="ideas" onclick="switchTab('ideas')">
+      <span class="ni-icon">💡</span><span class="ni-lbl">Ideas</span>
+    </button>
+    <button class="ni" data-t="wishes" onclick="switchTab('wishes')">
+      <span class="ni-icon">🎁</span><span class="ni-lbl">Wishes</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div id="mo-ov" onclick="overlayClick(event)">
+  <div id="mo-sheet">
+    <div class="mo-handle"></div>
+    <div class="mo-hdr">
+      <div class="mo-title" id="mo-title">Add Entry</div>
+      <button class="mo-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="mo-body" id="mo-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════ STATE ══════════
+const HAS_FS = typeof window.showOpenFilePicker === 'function';
+let fh = null; // file handle
+let DATA = { thanks:[], plans:[], ideas:[], wishes:[] };
+let editId = null;
+let curImg = null; // base64 for current image in form
+let planItems = []; // temp plan items
+let viewingSection = null, viewingId = null;
+
+// ══════════ FILE I/O ══════════
+async function openFile() {
+  if (!HAS_FS) { fallback(); return; }
+  try {
+    [fh] = await window.showOpenFilePicker({
+      types:[{description:'Verse JSON',accept:{'application/json':['.json']}}],multiple:false
+    });
+    const file = await fh.getFile();
+    const txt = await file.text();
+    try { const p = JSON.parse(txt); DATA = {thanks:p.thanks||[],plans:p.plans||[],ideas:p.ideas||[],wishes:p.wishes||[]}; }
+    catch { DATA = {thanks:[],plans:[],ideas:[],wishes:[]}; }
+    showApp();
+  } catch(e) { if(e.name!=='AbortError') toast('❌ Could not open file'); }
+}
+
+async function newFile() {
+  if (!HAS_FS) { DATA={thanks:[],plans:[],ideas:[],wishes:[]}; showApp(); return; }
+  try {
+    fh = await window.showSaveFilePicker({suggestedName:'verse_data.json',types:[{description:'Verse JSON',accept:{'application/json':['.json']}}]});
+    DATA={thanks:[],plans:[],ideas:[],wishes:[]};
+    await persist();
+    showApp();
+  } catch(e) { if(e.name!=='AbortError') toast('❌ Could not create file'); }
+}
+
+async function persist() {
+  if (!fh) { ls(); return; }
+  try {
+    const w = await fh.createWritable();
+    await w.write(JSON.stringify(DATA,null,2));
+    await w.close();
+  } catch(e) { toast('⚠️ Save failed: '+e.message); }
+}
+
+function ls() { try { localStorage.setItem('verse_data', JSON.stringify(DATA)); } catch{} }
+function fallback() {
+  try { const d = localStorage.getItem('verse_data'); if(d) DATA=JSON.parse(d); } catch{}
+  document.getElementById('no-api').style.display='block';
+  showApp();
+}
+function switchFile() { fh=null; document.getElementById('app').style.display='none'; document.getElementById('setup').style.display='flex'; }
+async function save() { HAS_FS&&fh ? await persist() : ls(); }
+
+// ══════════ APP INIT ══════════
+function showApp() {
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').style.display='block';
+  renderAll();
+}
+
+function renderAll() {
+  renderDash();
+  renderThanks();
+  renderPlans();
+  renderIdeas();
+  renderWishes();
+}
+
+// ══════════ IMAGE UTILS ══════════
+async function compressImg(file) {
+  return new Promise(res => {
+    const canvas = document.createElement('canvas');
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const max = 900;
+      const ratio = Math.min(max/img.width, max/img.height, 1);
+      canvas.width = img.width*ratio; canvas.height = img.height*ratio;
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      URL.revokeObjectURL(url);
+      res(canvas.toDataURL('image/jpeg', 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); res(null); };
+    img.src = url;
+  });
+}
+
+function triggerImgUpload(inputId) { document.getElementById(inputId).click(); }
+
+async function handleImgChange(inputId, previewId, zoneId) {
+  const inp = document.getElementById(inputId);
+  if (!inp.files[0]) return;
+  const b64 = await compressImg(inp.files[0]);
+  if (!b64) return;
+  curImg = b64;
+  const wrap = document.getElementById(previewId);
+  wrap.innerHTML = `<img class="img-prev" src="${b64}"><button class="img-rm" onclick="removeImg('${previewId}','${zoneId}')">✕</button>`;
+  wrap.style.display='block';
+  document.getElementById(zoneId).style.display='none';
+}
+
+function removeImg(previewId, zoneId) {
+  curImg=null;
+  document.getElementById(previewId).style.display='none';
+  document.getElementById(previewId).innerHTML='';
+  document.getElementById(zoneId).style.display='block';
+}
+
+// ══════════ ROUTING ══════════
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(el=>el.classList.remove('act'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelector(`.ni[data-t="${t}"]`).classList.add('act');
+  if(t==='home') renderDash();
+}
+
+// ══════════ MODAL ══════════
+function openModal(title, html) {
+  document.getElementById('mo-title').textContent=title;
+  document.getElementById('mo-body').innerHTML=html;
+  document.getElementById('mo-ov').classList.add('act');
+}
+function closeModal() {
+  document.getElementById('mo-ov').classList.remove('act');
+  curImg=null; planItems=[]; editId=null;
+}
+function overlayClick(e) { if(e.target===document.getElementById('mo-ov')) closeModal(); }
+
+// ══════════ HELPERS ══════════
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2);
+const fmtDate = iso => new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const fmtDateShort = iso => new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const todayStr = () => new Date().toISOString().split('T')[0];
+
+function daysUntil(mmdd) {
+  // mmdd = "MM-DD"
+  const today = new Date(); today.setHours(0,0,0,0);
+  const [m,d] = mmdd.split('-').map(Number);
+  let next = new Date(today.getFullYear(), m-1, d);
+  if (next < today) next = new Date(today.getFullYear()+1, m-1, d);
+  return Math.ceil((next-today)/86400000);
+}
+
+function daysUntilDate(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  return Math.ceil((target-today)/86400000);
+}
+
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2700);
+}
+
+function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ══════════ DASHBOARD ══════════
+function renderDash() {
+  const now = new Date();
+  document.getElementById('hdr-date').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  // Stats
+  const uniqDays = new Set([
+    ...DATA.thanks.map(e=>e.date.split('T')[0]),
+    ...DATA.plans.map(e=>e.createdAt.split('T')[0]),
+    ...DATA.ideas.map(e=>e.date.split('T')[0]),
+    ...DATA.wishes.map(e=>e.createdAt.split('T')[0])
+  ]).size;
+  const streak = calcStreak();
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card ho-c"><div class="stat-ico">📅</div><div class="stat-n">${uniqDays}</div><div class="stat-l">Days Journaled</div></div>
+    <div class="stat-card rd-c"><div class="stat-ico">🔥</div><div class="stat-n">${streak}</div><div class="stat-l">Day Streak</div></div>
+    <div class="stat-card ty-c"><div class="stat-ico">🙏</div><div class="stat-n">${DATA.thanks.length}</div><div class="stat-l">Gratitudes</div></div>
+    <div class="stat-card pl-c"><div class="stat-ico">📋</div><div class="stat-n">${DATA.plans.length}</div><div class="stat-l">Plans Made</div></div>
+    <div class="stat-card id-c"><div class="stat-ico">💡</div><div class="stat-n">${DATA.ideas.length}</div><div class="stat-l">Ideas Captured</div></div>
+    <div class="stat-card wi-c"><div class="stat-ico">🎁</div><div class="stat-n">${DATA.wishes.length}</div><div class="stat-l">Wishes Set</div></div>
+  `;
+
+  // Most thanked
+  const topEl = document.getElementById('dash-top-thanks');
+  if (DATA.thanks.length > 0) {
+    const freq = {};
+    DATA.thanks.forEach(e => { const k=e.recipient||'Someone'; freq[k]=(freq[k]||0)+1; });
+    const top = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+    topEl.innerHTML = `<div class="top-thanks"><div class="tt-ico">🏆</div><div><div class="tt-label">Most Grateful To</div><div class="tt-name">${escH(top[0])}</div></div></div>`;
+  } else { topEl.innerHTML=''; }
+
+  renderFeed();
+}
+
+function calcStreak() {
+  const allDates = new Set([
+    ...DATA.thanks.map(e=>e.date.split('T')[0]),
+    ...DATA.plans.map(e=>e.createdAt.split('T')[0]),
+    ...DATA.ideas.map(e=>e.date.split('T')[0])
+  ]);
+  if (!allDates.size) return 0;
+  const sorted = [...allDates].sort().reverse();
+  const today = todayStr();
+  if (sorted[0]!==today && sorted[0]!==new Date(Date.now()-86400000).toISOString().split('T')[0]) return 0;
+  let streak=1;
+  for (let i=1;i<sorted.length;i++) {
+    const prev = new Date(sorted[i-1]), cur = new Date(sorted[i]);
+    if ((prev-cur)/86400000===1) streak++; else break;
+  }
+  return streak;
+}
+
+function renderFeed() {
+  const feed = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate()+1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  // Plans for today or tomorrow
+  DATA.plans.forEach(p => {
+    const d = daysUntilDate(p.planDate);
+    if (d>=0 && d<=3) {
+      const lbl = d===0?'Today':d===1?'Tomorrow':`In ${d} days`;
+      const remaining = p.items.filter((_,i)=>!p.completed[i]).length;
+      feed.push({type:'pl',priority:10-d,html:`
+        <div class="feed-card pl-f">
+          <div class="feed-label pl">📋 Plan — ${lbl}</div>
+          <div class="feed-text">${escH(p.title)}</div>
+          <div class="feed-meta">${p.items.length} items · ${remaining} remaining</div>
+        </div>`});
+    }
+  });
+
+  // Upcoming wishes
+  DATA.wishes.forEach(w => {
+    const mmdd = w.isPeriodic ? w.mmdd : null;
+    const specificDate = !w.isPeriodic ? w.specificDate : null;
+    let days;
+    if (w.isPeriodic && w.mmdd) days = daysUntil(w.mmdd);
+    else if (specificDate) days = daysUntilDate(specificDate);
+    if (days !== undefined && days <= 10) {
+      const urgency = days===0?'🚨':days<=3?'⚠️':'🎉';
+      const lbl = days===0?'Today!':days===1?'Tomorrow':`In ${days} days`;
+      feed.push({type:'wi',priority:20-days,html:`
+        <div class="feed-card wi-f">
+          <div class="feed-label wi">${urgency} Wish — ${lbl}</div>
+          <div class="feed-text">${escH(w.person)}'s ${escH(w.occasion)}</div>
+          <div class="feed-meta">${w.message?escH(w.message.slice(0,60))+'…':''}</div>
+        </div>`});
+    }
+  });
+
+  // Random throwback gratitude
+  if (DATA.thanks.length > 1) {
+    const past = DATA.thanks.filter(e=>e.date.split('T')[0]!==todayStr());
+    if (past.length) {
+      const r = past[Math.floor(Math.random()*past.length)];
+      feed.push({type:'ty',priority:0,html:`
+        <div class="feed-card ty-f">
+          <div class="feed-label ty">✨ Throwback Gratitude</div>
+          <div class="feed-text">You were grateful to <strong>${escH(r.recipient)}</strong>${r.reason?': '+escH(r.reason.slice(0,80)):''}</div>
+          <div class="feed-meta">${fmtDate(r.date)}</div>
+        </div>`});
+    }
+  }
+
+  // Random idea spark
+  if (DATA.ideas.length) {
+    const r = DATA.ideas[Math.floor(Math.random()*DATA.ideas.length)];
+    feed.push({type:'id',priority:0,html:`
+      <div class="feed-card id-f">
+        <div class="feed-label id">💡 Idea Spark</div>
+        <div class="feed-text">${escH(r.title)}</div>
+        <div class="feed-meta">${r.category} · ${fmtDate(r.date)}</div>
+      </div>`});
+  }
+
+  feed.sort((a,b)=>b.priority-a.priority);
+
+  const feedEl = document.getElementById('dash-feed');
+  if (feed.length===0) {
+    feedEl.innerHTML = `<div style="text-align:center;padding:32px 20px;color:var(--t2);font-size:13px;line-height:1.7">
+      Start adding entries across the sections<br>and your personalized feed will appear here ✨
+    </div>`;
+  } else {
+    feedEl.innerHTML = feed.map(f=>f.html).join('');
+  }
+}
+
+// ══════════ THANKVERSE ══════════
+function renderThanks() {
+  const el = document.getElementById('ty-list');
+  document.getElementById('ty-count').textContent = DATA.thanks.length + (DATA.thanks.length===1?' entry':' entries');
+  if (!DATA.thanks.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon ty">🙏</div><div class="empty-h">No Gratitude Yet</div><div class="empty-s">Who or what are you thankful for today? Tap + to add.</div></div>`;
+    return;
+  }
+  el.innerHTML = [...DATA.thanks].reverse().map(e=>`
+    <div class="card ty" onclick="viewEntry('thanks','${e.id}')">
+      <div class="card-row">
+        ${e.image?`<img class="card-thumb" src="${e.image}">`:`<div class="card-no-img ty">🙏</div>`}
+        <div class="card-info">
+          <div class="card-name">${escH(e.recipient)}</div>
+          <div class="card-desc">${escH(e.reason||'')}</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <div class="card-dt">${fmtDate(e.date)}</div>
+        <div class="ctag ty">${escH(e.tag||'Grateful')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function openAddModal(section, id=null) {
+  editId = id;
+  curImg = null; planItems=[];
+  const entry = id ? DATA[section].find(e=>e.id===id) : null;
+  if (entry?.image) curImg = entry.image;
+
+  if (section==='thanks') openThanksModal(entry);
+  else if (section==='plans') openPlansModal(entry);
+  else if (section==='ideas') openIdeasModal(entry);
+  else if (section==='wishes') openWishesModal(entry);
+}
+
+function openThanksModal(e) {
+  const imgZone = `
+    <div class="img-zone ty" id="ty-zone" onclick="triggerImgUpload('ty-img-inp')" style="${e?.image?'display:none':''}">
+      <div class="img-zone-ico">🖼️</div>
+      <div class="img-zone-txt">Upload a photo (optional)</div>
+    </div>
+    <input type="file" id="ty-img-inp" accept="image/*" onchange="handleImgChange('ty-img-inp','ty-prev','ty-zone')">
+    <div class="img-prev-wrap" id="ty-prev" style="${e?.image?'':'display:none'}">
+      ${e?.image?`<img class="img-prev" src="${e.image}"><button class="img-rm" onclick="removeImg('ty-prev','ty-zone')">✕</button>`:''}
+    </div>`;
+
+  const tags = ['Grateful','Love','Inspired','Thankful','Blessed','Impressed'];
+  const chipHtml = tags.map(t=>`<div class="chip ty-c ${(e?.tag||'Grateful')===t?'sel ty-c':''}" onclick="selectChip(this,'ty-chips')">${t}</div>`).join('');
+
+  openModal(e?'Edit Gratitude':'Add Gratitude', `
+    <div class="fg"><label class="fl">Who / What 🙏</label>
+      <input class="fi ty" id="ty-who" placeholder="e.g. Mom, My mentor, Coffee ☕" value="${escH(e?.recipient||'')}"></div>
+    <div class="fg"><label class="fl">Why are you grateful?</label>
+      <textarea class="fta ty" id="ty-why" placeholder="Because they…">${escH(e?.reason||'')}</textarea></div>
+    <div class="fg"><label class="fl">Tag</label><div class="chip-row" id="ty-chips">${chipHtml}</div></div>
+    <div class="fg"><label class="fl">Photo (optional)</label>${imgZone}</div>
+    <button class="sub-btn ty" onclick="saveThanks()">💾 ${e?'Update':'Save'} Gratitude</button>
+    <div style="height:20px"></div>`);
+}
+
+async function saveThanks() {
+  const who = document.getElementById('ty-who').value.trim();
+  const why = document.getElementById('ty-why').value.trim();
+  const tag = document.querySelector('#ty-chips .chip.sel')?.textContent || 'Grateful';
+  if (!who) { toast('✏️ Please enter who/what you\'re grateful for'); return; }
+
+  if (editId) {
+    const idx = DATA.thanks.findIndex(e=>e.id===editId);
+    DATA.thanks[idx] = {...DATA.thanks[idx], recipient:who, reason:why, tag, image:curImg??DATA.thanks[idx].image};
+  } else {
+    DATA.thanks.push({id:uid(), date:new Date().toISOString(), recipient:who, reason:why, tag, image:curImg});
+  }
+  await save(); closeModal(); renderThanks(); renderDash(); toast('🙏 Gratitude saved!');
+}
+
+// ══════════ PLANVERSE ══════════
+function renderPlans() {
+  const el = document.getElementById('pl-list');
+  document.getElementById('pl-count').textContent = DATA.plans.length + (DATA.plans.length===1?' plan':' plans');
+  if (!DATA.plans.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon pl">📋</div><div class="empty-h">No Plans Yet</div><div class="empty-s">Add plans for tomorrow or any date you pick.</div></div>`;
+    return;
+  }
+  const sorted = [...DATA.plans].sort((a,b)=>new Date(a.planDate)-new Date(b.planDate));
+  el.innerHTML = sorted.map(p=>{
+    const d = daysUntilDate(p.planDate);
+    const dlbl = d<0?'Past':d===0?'Today':d===1?'Tomorrow':`In ${d} days`;
+    const doneCount = p.completed.filter(Boolean).length;
+    const preview = p.items.slice(0,3).map((it,i)=>`<div class="plan-prev-row ${p.completed[i]?'done':''}">${escH(it)}</div>`).join('');
+    return `<div class="card pl" onclick="viewEntry('plans','${p.id}')">
+      <div class="plan-dt-badge">📅 ${p.planDate} — ${dlbl}</div>
+      <div class="card-name">${escH(p.title)}</div>
+      <div class="plan-preview" style="margin-top:7px">${preview}</div>
+      <div class="card-foot">
+        <div class="card-dt">${doneCount}/${p.items.length} done</div>
+        <div class="ctag pl">${p.priority}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openPlansModal(e) {
+  planItems = e ? [...e.items] : [''];
+  const pItemsHtml = () => planItems.map((_,i)=>`
+    <div class="plan-row" id="pr-${i}">
+      <input placeholder="Plan item ${i+1}…" value="${escH(planItems[i]||'')}">
+      <button class="rm-row" onclick="rmPlanRow(${i})">−</button>
+    </div>`).join('');
+
+  const priorities = ['High','Medium','Low'];
+  const priHtml = priorities.map(p=>`<div class="chip ${(e?.priority||'High')===p?'sel':''}" onclick="selectChip(this,'pl-pri')">${p}</div>`).join('');
+
+  openModal(e?'Edit Plan':'New Plan', `
+    <div class="fg"><label class="fl">Title</label>
+      <input class="fi pl" id="pl-title" placeholder="e.g. Deep work day" value="${escH(e?.title||'')}"></div>
+    <div class="fg"><label class="fl">Date</label>
+      <input class="fi pl" type="date" id="pl-date" value="${e?.planDate||tomorrow()}"></div>
+    <div class="fg"><label class="fl">Priority</label><div class="chip-row" id="pl-pri">${priHtml}</div></div>
+    <div class="fg"><label class="fl">Plan Items</label>
+      <div class="plan-list" id="pl-items">${pItemsHtml()}</div>
+      <button class="add-row-btn" onclick="addPlanRow()">+ Add Item</button>
+    </div>
+    <button class="sub-btn pl" onclick="savePlan()">💾 ${e?'Update':'Save'} Plan</button>
+    <div style="height:20px"></div>`);
+}
+
+function tomorrow() {
+  const d = new Date(); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0];
+}
+
+function addPlanRow() {
+  syncPlanItems();
+  planItems.push('');
+  refreshPlanItems();
+}
+
+function rmPlanRow(i) {
+  syncPlanItems();
+  planItems.splice(i,1);
+  if(!planItems.length) planItems=[''];
+  refreshPlanItems();
+}
+
+function syncPlanItems() {
+  document.querySelectorAll('#pl-items .plan-row input').forEach((inp,i)=>{ planItems[i]=inp.value; });
+}
+
+function refreshPlanItems() {
+  const container = document.getElementById('pl-items');
+  if(!container) return;
+  container.innerHTML = planItems.map((_,i)=>`
+    <div class="plan-row" id="pr-${i}">
+      <input placeholder="Plan item ${i+1}…" value="${escH(planItems[i]||'')}">
+      <button class="rm-row" onclick="rmPlanRow(${i})">−</button>
+    </div>`).join('');
+}
+
+async function savePlan() {
+  syncPlanItems();
+  const title = document.getElementById('pl-title').value.trim();
+  const date = document.getElementById('pl-date').value;
+  const priority = document.querySelector('#pl-pri .chip.sel')?.textContent || 'High';
+  const items = planItems.filter(x=>x.trim());
+  if (!title) { toast('✏️ Please add a title'); return; }
+  if (!date) { toast('📅 Please pick a date'); return; }
+  if (!items.length) { toast('📝 Add at least one plan item'); return; }
+
+  if (editId) {
+    const idx = DATA.plans.findIndex(e=>e.id===editId);
+    const old = DATA.plans[idx];
+    // preserve completion for existing items
+    const newComp = items.map((it,i)=>old.items[i]===it ? old.completed[i]||false : false);
+    DATA.plans[idx] = {...old, title, planDate:date, priority, items, completed:newComp};
+  } else {
+    DATA.plans.push({id:uid(), createdAt:new Date().toISOString(), planDate:date, title, priority, items, completed:items.map(()=>false)});
+  }
+  await save(); closeModal(); renderPlans(); renderDash(); toast('📋 Plan saved!');
+}
+
+// ══════════ IDEAVERSE ══════════
+function renderIdeas() {
+  const el = document.getElementById('id-list');
+  document.getElementById('id-count').textContent = DATA.ideas.length + (DATA.ideas.length===1?' idea':' ideas');
+  if (!DATA.ideas.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon id">💡</div><div class="empty-h">No Ideas Yet</div><div class="empty-s">Capture your next big idea before it disappears!</div></div>`;
+    return;
+  }
+  el.innerHTML = [...DATA.ideas].reverse().map(e=>`
+    <div class="card id" onclick="viewEntry('ideas','${e.id}')">
+      <div class="card-row">
+        ${e.image?`<img class="card-thumb" src="${e.image}">`:`<div class="card-no-img id">💡</div>`}
+        <div class="card-info">
+          <div class="card-name">${escH(e.title)}</div>
+          <div class="card-desc">${escH(e.description||'')}</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <div class="card-dt">${fmtDate(e.date)}</div>
+        <div class="ctag id">${escH(e.category||'Idea')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function openIdeasModal(e) {
+  const imgZone = `
+    <div class="img-zone" id="id-zone" onclick="triggerImgUpload('id-img-inp')" style="${e?.image?'display:none':''}">
+      <div class="img-zone-ico">🖼️</div>
+      <div class="img-zone-txt">Upload a sketch or reference (optional)</div>
+    </div>
+    <input type="file" id="id-img-inp" accept="image/*" onchange="handleImgChange('id-img-inp','id-prev','id-zone')">
+    <div class="img-prev-wrap" id="id-prev" style="${e?.image?'':'display:none'}">
+      ${e?.image?`<img class="img-prev" src="${e.image}"><button class="img-rm" onclick="removeImg('id-prev','id-zone')">✕</button>`:''}
+    </div>`;
+
+  const cats = ['Business','Tech','Creative','Research','Personal','Social','Product'];
+  const catHtml = cats.map(c=>`<div class="chip ${(e?.category||'Business')===c?'sel':''}" onclick="selectChip(this,'id-cats')">${c}</div>`).join('');
+
+  openModal(e?'Edit Idea':'Capture Idea', `
+    <div class="fg"><label class="fl">Idea Title ✨</label>
+      <input class="fi id" id="id-title" placeholder="e.g. AI-powered recipe app" value="${escH(e?.title||'')}"></div>
+    <div class="fg"><label class="fl">Describe the idea</label>
+      <textarea class="fta id" id="id-desc" placeholder="What's the core concept? Who benefits?">${escH(e?.description||'')}</textarea></div>
+    <div class="fg"><label class="fl">Category</label><div class="chip-row" id="id-cats">${catHtml}</div></div>
+    <div class="fg"><label class="fl">Image / Sketch (optional)</label>${imgZone}</div>
+    <button class="sub-btn id" onclick="saveIdea()">💾 ${e?'Update':'Save'} Idea</button>
+    <div style="height:20px"></div>`);
+}
+
+async function saveIdea() {
+  const title = document.getElementById('id-title').value.trim();
+  const desc = document.getElementById('id-desc').value.trim();
+  const category = document.querySelector('#id-cats .chip.sel')?.textContent || 'Business';
+  if (!title) { toast('✏️ Give your idea a title'); return; }
+
+  if (editId) {
+    const idx = DATA.ideas.findIndex(e=>e.id===editId);
+    DATA.ideas[idx] = {...DATA.ideas[idx], title, description:desc, category, image:curImg??DATA.ideas[idx].image};
+  } else {
+    DATA.ideas.push({id:uid(), date:new Date().toISOString(), title, description:desc, category, image:curImg});
+  }
+  await save(); closeModal(); renderIdeas(); renderDash(); toast('💡 Idea captured!');
+}
+
+// ══════════ WISHVERSE ══════════
+function renderWishes() {
+  const el = document.getElementById('wi-list');
+  document.getElementById('wi-count').textContent = DATA.wishes.length + (DATA.wishes.length===1?' wish':' wishes');
+  if (!DATA.wishes.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-icon wi">🎁</div><div class="empty-h">No Wishes Yet</div><div class="empty-s">Add birthdays, anniversaries, and special occasions.</div></div>`;
+    return;
+  }
+  el.innerHTML = DATA.wishes.map(w=>{
+    let days=null, cntHtml='';
+    if (w.isPeriodic && w.mmdd) days=daysUntil(w.mmdd);
+    else if (!w.isPeriodic && w.specificDate) days=daysUntilDate(w.specificDate);
+
+    if (days!==null) {
+      const cls = days<=3?'soon':days<=14?'near':'far';
+      const lbl = days===0?'Today!':days===1?'Tomorrow!':days<0?'Passed':`In ${days} days`;
+      cntHtml=`<span class="wcnt ${cls}">📅 ${lbl}</span>`;
+    }
+    return `<div class="card wi" onclick="viewEntry('wishes','${w.id}')">
+      <div class="card-row">
+        <div class="card-no-img wi">🎁</div>
+        <div class="card-info">
+          <div class="card-name">${escH(w.person)}</div>
+          <div class="card-desc">${escH(w.occasion)} ${w.isPeriodic?'<span class="per-badge">Yearly</span>':''}</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <div style="display:flex;gap:6px;align-items:center">${cntHtml}</div>
+        <div class="ctag wi">${w.isPeriodic?'♻️ Recurring':'One-time'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openWishesModal(e) {
+  const isPer = e?.isPeriodic ?? true;
+  openModal(e?'Edit Wish':'Add Wish', `
+    <div class="fg"><label class="fl">Person's Name 🎁</label>
+      <input class="fi wi" id="wi-person" placeholder="e.g. Dad, Best Friend" value="${escH(e?.person||'')}"></div>
+    <div class="fg"><label class="fl">Occasion</label>
+      <select class="fsel wi" id="wi-occasion">
+        ${['Birthday','Anniversary','Wedding','Graduation','New Year','Festival','Work Anniversary','Other'].map(o=>`<option ${(e?.occasion||'Birthday')===o?'selected':''}>${o}</option>`).join('')}
+      </select></div>
+    <div class="fg"><label class="fl">Wish Message</label>
+      <textarea class="fta wi" id="wi-msg" placeholder="Write a warm message…">${escH(e?.message||'')}</textarea></div>
+    <div class="fg">
+      <div class="tog-row">
+        <span class="tog-lbl">♻️ Yearly (recurring)</span>
+        <button class="tog ${isPer?'on':''}" id="wi-tog" onclick="this.classList.toggle('on');toggleWishDateField()"></button>
+      </div>
+    </div>
+    <div class="fg" id="wi-date-wrap-yearly" style="${isPer?'':'display:none'}">
+      <label class="fl">Date (Month & Day)</label>
+      <input class="fi wi" type="date" id="wi-date-yearly" value="${e?.mmdd?new Date().getFullYear()+'-'+e.mmdd:''}">
+      <div style="font-size:11px;color:var(--t2);margin-top:5px">Only month & day are used for yearly wishes.</div>
+    </div>
+    <div class="fg" id="wi-date-wrap-once" style="${!isPer?'':'display:none'}">
+      <label class="fl">Specific Date</label>
+      <input class="fi wi" type="date" id="wi-date-once" value="${e?.specificDate||''}">
+    </div>
+    <button class="sub-btn wi" onclick="saveWish()">💾 ${e?'Update':'Save'} Wish</button>
+    <div style="height:20px"></div>`);
+}
+
+function toggleWishDateField() {
+  const isPer = document.getElementById('wi-tog').classList.contains('on');
+  document.getElementById('wi-date-wrap-yearly').style.display = isPer?'':'none';
+  document.getElementById('wi-date-wrap-once').style.display = isPer?'none':'';
+}
+
+async function saveWish() {
+  const person = document.getElementById('wi-person').value.trim();
+  const occasion = document.getElementById('wi-occasion').value;
+  const message = document.getElementById('wi-msg').value.trim();
+  const isPeriodic = document.getElementById('wi-tog').classList.contains('on');
+  if (!person) { toast('✏️ Please enter a name'); return; }
+
+  let mmdd=null, specificDate=null;
+  if (isPeriodic) {
+    const d = document.getElementById('wi-date-yearly').value;
+    if (!d) { toast('📅 Pick a date'); return; }
+    const dd = new Date(d);
+    mmdd = String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
+  } else {
+    specificDate = document.getElementById('wi-date-once').value;
+    if (!specificDate) { toast('📅 Pick a date'); return; }
+  }
+
+  const obj = {id:editId||uid(), createdAt:editId?(DATA.wishes.find(w=>w.id===editId)?.createdAt||new Date().toISOString()):new Date().toISOString(), person, occasion, message, isPeriodic, mmdd, specificDate};
+
+  if (editId) { const idx=DATA.wishes.findIndex(w=>w.id===editId); DATA.wishes[idx]=obj; }
+  else DATA.wishes.push(obj);
+  await save(); closeModal(); renderWishes(); renderDash(); toast('🎁 Wish saved!');
+}
+
+// ══════════ VIEW ENTRY ══════════
+function viewEntry(section, id) {
+  viewingSection=section; viewingId=id;
+  const entry = DATA[section].find(e=>e.id===id);
+  if (!entry) return;
+
+  if (section==='thanks') viewThanks(entry);
+  else if (section==='plans') viewPlan(entry);
+  else if (section==='ideas') viewIdea(entry);
+  else if (section==='wishes') viewWish(entry);
+}
+
+function viewThanks(e) {
+  openModal('Gratitude Entry', `
+    ${e.image?`<img class="view-img" src="${e.image}">`:''}
+    <div class="view-label" style="color:var(--ty)">🙏 Grateful To</div>
+    <div class="view-text" style="font-size:18px;font-weight:700;font-family:'Syne',sans-serif">${escH(e.recipient)}</div>
+    ${e.reason?`<div class="view-label" style="color:var(--t2)">Why</div><div class="view-text">${escH(e.reason)}</div>`:''}
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+      <div class="ctag ty">${escH(e.tag||'Grateful')}</div>
+      <div style="font-size:11px;color:var(--t3)">${fmtDate(e.date)}</div>
+    </div>
+    <div class="mo-actions">
+      <button class="act-edit" onclick="closeModal();openAddModal('thanks','${e.id}')">✏️ Edit</button>
+      <button class="act-del" onclick="deleteEntry('thanks','${e.id}')">🗑 Delete</button>
+    </div>
+    <div style="height:20px"></div>`);
+}
+
+function viewPlan(p) {
+  const checks = p.items.map((it,i)=>`
+    <div class="plan-chk-row" onclick="togglePlanItem('${p.id}',${i})">
+      <div class="chk-box ${p.completed[i]?'on':''}" id="chk-${p.id}-${i}"></div>
+      <div class="chk-txt ${p.completed[i]?'done':''}" id="chk-txt-${p.id}-${i}">${escH(it)}</div>
+    </div>`).join('');
+  openModal('Plan Details', `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <div class="plan-dt-badge">📅 ${p.planDate}</div>
+      <div class="ctag pl">${escH(p.priority)}</div>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t1);margin-bottom:14px">${escH(p.title)}</div>
+    <div>${checks}</div>
+    <div class="mo-actions" style="margin-top:14px">
+      <button class="act-edit" onclick="closeModal();openAddModal('plans','${p.id}')">✏️ Edit</button>
+      <button class="act-del" onclick="deleteEntry('plans','${p.id}')">🗑 Delete</button>
+    </div>
+    <div style="height:20px"></div>`);
+}
+
+async function togglePlanItem(planId, idx) {
+  const plan = DATA.plans.find(p=>p.id===planId);
+  if(!plan) return;
+  plan.completed[idx] = !plan.completed[idx];
+  await save(); renderPlans();
+  const box = document.getElementById(`chk-${planId}-${idx}`);
+  const txt = document.getElementById(`chk-txt-${planId}-${idx}`);
+  if(box) { box.classList.toggle('on',plan.completed[idx]); }
+  if(txt) { txt.classList.toggle('done',plan.completed[idx]); }
+}
+
+function viewIdea(e) {
+  openModal('Idea Details', `
+    ${e.image?`<img class="view-img" src="${e.image}">`:''}
+    <div class="view-label" style="color:var(--id)">💡 Idea</div>
+    <div class="view-text" style="font-size:18px;font-weight:700;font-family:'Syne',sans-serif">${escH(e.title)}</div>
+    ${e.description?`<div class="view-label" style="color:var(--t2)">Description</div><div class="view-text">${escH(e.description)}</div>`:''}
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+      <div class="ctag id">${escH(e.category||'Idea')}</div>
+      <div style="font-size:11px;color:var(--t3)">${fmtDate(e.date)}</div>
+    </div>
+    <div class="mo-actions">
+      <button class="act-edit" onclick="closeModal();openAddModal('ideas','${e.id}')">✏️ Edit</button>
+      <button class="act-del" onclick="deleteEntry('ideas','${e.id}')">🗑 Delete</button>
+    </div>
+    <div style="height:20px"></div>`);
+}
+
+function viewWish(w) {
+  let countdown='';
+  if (w.isPeriodic && w.mmdd) {
+    const d=daysUntil(w.mmdd);
+    countdown=`<div class="wcnt ${d<=3?'soon':d<=14?'near':'far'}" style="display:inline-flex;margin-bottom:12px">📅 ${d===0?'Today!':d===1?'Tomorrow!':'In '+d+' days'}</div>`;
+  } else if (!w.isPeriodic && w.specificDate) {
+    const d=daysUntilDate(w.specificDate);
+    countdown=`<div class="wcnt ${d<=3?'soon':d<=14?'near':'far'}" style="display:inline-flex;margin-bottom:12px">📅 ${d===0?'Today!':d<0?'Passed':'In '+d+' days'}</div>`;
+  }
+  openModal('Wish Details', `
+    ${countdown}
+    <div class="view-label" style="color:var(--wi)">🎁 Person</div>
+    <div class="view-text" style="font-size:18px;font-weight:700;font-family:'Syne',sans-serif">${escH(w.person)}</div>
+    <div class="view-label" style="color:var(--t2)">Occasion</div>
+    <div class="view-text">${escH(w.occasion)} ${w.isPeriodic?'<span class="per-badge">Yearly</span>':''}</div>
+    ${w.message?`<div class="view-label" style="color:var(--t2)">Message</div><div class="view-text">${escH(w.message)}</div>`:''}
+    <div style="font-size:11px;color:var(--t3);margin-bottom:14px">${w.isPeriodic&&w.mmdd?'Every year on '+w.mmdd:w.specificDate||''}</div>
+    <div class="mo-actions">
+      <button class="act-edit" onclick="closeModal();openAddModal('wishes','${w.id}')">✏️ Edit</button>
+      <button class="act-del" onclick="deleteEntry('wishes','${w.id}')">🗑 Delete</button>
+    </div>
+    <div style="height:20px"></div>`);
+}
+
+async function deleteEntry(section, id) {
+  DATA[section] = DATA[section].filter(e=>e.id!==id);
+  await save(); closeModal();
+  if(section==='thanks') renderThanks();
+  else if(section==='plans') renderPlans();
+  else if(section==='ideas') renderIdeas();
+  else if(section==='wishes') renderWishes();
+  renderDash();
+  toast('🗑 Entry deleted');
+}
+
+// ══════════ CHIP SELECTION ══════════
+function selectChip(el, groupId) {
+  document.querySelectorAll(`#${groupId} .chip`).forEach(c=>c.classList.remove('sel','ty-c'));
+  el.classList.add('sel');
+  if(groupId==='ty-chips') el.classList.add('ty-c');
+}
+
+// ══════════ INIT ══════════
+window.addEventListener('DOMContentLoaded', () => {
+  if (!HAS_FS) document.getElementById('no-api').style.display='block';
+});
+</script>
+</body>
+</html>
